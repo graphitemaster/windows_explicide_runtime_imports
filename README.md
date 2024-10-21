@@ -7,20 +7,20 @@ When Windows executes a "Win32" or "Win64" process it sets up a variety of struc
   * `FreeLibrary`
   * `GetProcAddress`
 
-With these procedures it's possible to dynamically load any of the WinAPI libraries and use them without having any explicit import libraries needed during link time or on process construction. This also lets us compile executables that are free of all [Runtime libraries](https://en.wikipedia.org/wiki/Microsoft_Windows_library_files#Runtime_libraries) including the C standard runtime library (MSVCP*.DLL), Universal C Run Time (UCRT) and the Microsoft Visual C++ Runtime.
+With these procedures it's possible to dynamically load any of the WinAPI libraries and use them without having any explicit import libraries needed during link time or on process construction. This also lets us compile executables that are free of all [Runtime libraries](https://en.wikipedia.org/wiki/Microsoft_Windows_library_files#Runtime_libraries) including the C standard runtime library (MSVCP*.DLL), Universal C Run Time (UCRT), and the Microsoft Visual C++ Runtime.
 
 This is especially useful for static libraries on Windows where linking against a static library often requires specifying multiple import libraries which that static library depend on. With this custom loader you can produce static libraries which can be linked against without any import libraries.
 
 In general this effectively replaces the behavior that the [Import Address Table](https://en.wikipedia.org/wiki/Portable_Executable#Import_table) provides but does so through explicit runtime C code, side-stepping link time import library requirements and the automatic import behavior that the Windows dynamic loader does on process construction automatically. As a side-effect of this, [IAT hooking](https://www.ired.team/offensive-security/code-injection-process-injection/import-adress-table-iat-hooking) is also made impossible.
 
-The loader provided by this project also ignores a feature of DLLs on Windows called "DLL forwarding". DLL forwarding is a feature of the Windows dynamic linker which allows a DLL to [redirect symbols to another DLL](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-redirection). When DLL forwarding behavior is not implemented it means that traditional DLL highjacking and proxying tools are also thwarted.
+The loader provided by this project also ignores a feature of DLLs on Windows called "DLL forwarding". DLL forwarding is a feature of the Windows dynamic linker which allows a DLL to [redirect symbols to another DLL](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-redirection). When DLL forwarding behavior is not implemented it means that traditional DLL hijacking and proxying tools are also thwarted.
 
 ## How to use
 The easiest way to use this is to include the three files into your project and to modify the `win32_imports.h` header file to explicitly list the procedures you want to import and from which DLLs using an [`XMACROS` approach](https://en.wikipedia.org/wiki/X_macro)
 
 The `WIN32_DLL` macro is used to list the DLLs you'd like to import at runtime. It only takes a single argument which is the case-insensitive name of the DLL as a C identifier (not a string).
 
-The `WIN32_PROC` macro is used to list the procedures you'd like to import at runtime. It takes a variable count of arguments but must expects the name of the DLL as defined by a previous `WIN32_DLL` macro to read the procedure from, the name of the procedure as a C identifier (not a string), the return type of that procedure and then a variable argument list of types for the procedure arguments.
+The `WIN32_PROC` macro is used to list the procedures you'd like to import at runtime. It takes a variable count of arguments, the first of which expects the name of the DLL as used by a previous `WIN32_DLL` macro to read the procedure from, the name of the procedure as a C identifier (not a string), the return type of that procedure, and then a variable list of types for the procedure arguments.
 
 Once you have done this you can load all your WinAPI DLLs and procedures with the following C code from the entry point of your application or library.
 ```c
