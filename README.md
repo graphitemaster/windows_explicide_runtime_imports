@@ -7,7 +7,7 @@ When Windows executes a "Win32" or "Win64" process it sets up a variety of struc
   * `FreeLibrary`
   * `GetProcAddress`
 
-With these procedures it's possible to dynamically load any of the WinAPI libraries and use them without having any explicit import libraries needed during link time or on process construction. This also lets us compile executables that are free of all [Runtime libraries](https://en.wikipedia.org/wiki/Microsoft_Windows_library_files#Runtime_libraries) including the C standard runtime library (MSVCP*.DLL), Universal C Run Time (UCRT), and the Microsoft Visual C++ Runtime.
+With these procedures it's possible to dynamically load any of the WinAPI libraries and use them without having any explicit import libraries needed during link time or on process construction. When combined with `/NODEFAULTLIB` it also lets us compile executables that are free of all [Runtime libraries](https://en.wikipedia.org/wiki/Microsoft_Windows_library_files#Runtime_libraries) including the C standard runtime library (MSVCP*.DLL), Universal C Run Time (UCRT), and the Microsoft Visual C++ Runtime.
 
 This is especially useful for static libraries on Windows where linking against a static library often requires specifying multiple import libraries which that static library depend on. With this custom loader you can produce static libraries which can be linked against without any import libraries.
 
